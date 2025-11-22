@@ -1,0 +1,252 @@
+{
+  "game": {
+    "name": "Temple Run",
+    "type": "2D",
+    "description": "Endless runner where you play as an explorer escaping an ancient temple guardian. Switch lanes, jump, and slide while collecting coins and avoiding obstacles.",
+    "genre": "endless_runner",
+    "version": "1.0.0"
+  },
+  "settings": {
+    "window": {
+      "width": 1280,
+      "height": 720,
+      "resizable": true,
+      "fullscreen": false
+    },
+    "physics": {
+      "enabled": true,
+      "gravity": 1800
+    },
+    "rendering": {
+      "method": "forward_plus"
+    }
+  },
+  "player": {
+    "name": "Explorer",
+    "health": 1,
+    "speed": 300,
+    "abilities": ["lane_switch", "jump", "slide", "collect"],
+    "lanes": [200, 400, 600]
+  },
+  "entities": {
+    "obstacles": [
+      {
+        "name": "Wall",
+        "type": "wall",
+        "height": 80,
+        "avoid_by": "slide"
+      },
+      {
+        "name": "Low Barrier",
+        "type": "low",
+        "height": 30,
+        "avoid_by": "jump"
+      }
+    ],
+    "collectibles": [
+      {
+        "name": "Coin",
+        "value": 10,
+        "type": "coin",
+        "rarity": "common"
+      },
+      {
+        "name": "Gem",
+        "value": 50,
+        "type": "gem",
+        "rarity": "rare"
+      },
+      {
+        "name": "Relic",
+        "value": 100,
+        "type": "relic",
+        "rarity": "legendary"
+      }
+    ],
+    "powerups": [
+      {
+        "name": "Shield",
+        "duration": 5,
+        "effect": "protect_from_one_hit"
+      },
+      {
+        "name": "Speed Boost",
+        "duration": 5,
+        "effect": "increase_speed_50%"
+      },
+      {
+        "name": "Magnet",
+        "duration": 10,
+        "effect": "attract_nearby_coins"
+      }
+    ]
+  },
+  "gameplay": {
+    "mechanics": {
+      "lane_switching": true,
+      "jumping": true,
+      "sliding": true,
+      "endless_generation": true,
+      "difficulty_scaling": true
+    },
+   
+
+    "scoring": {
+      "distance_points": 1,
+      "coin_points": 10,
+      "gem_points": 50,
+      "relic_points": 100,
+      "multiplier_base": 1.0,
+      "multiplier_max": 5.0
+    },
+    "difficulty": {
+      "initial_speed": 300,
+      "max_speed": 600,
+      "speed_increase_rate": 1.05,
+      "increase_interval": 10,
+      "obstacle_density_min": 2,
+      "obstacle_density_max": 4,
+      "collectible_density_min": 3,
+      "collectible_density_max": 6
+    },
+    "world": {
+      "chunk_height": 400,
+      "spawn_distance": 800,
+      "despawn_distance": 200,
+      "lane_count": 3,
+      "lane_positions": [200, 400, 600]
+    }
+  },
+  "scenes": [
+    {
+      "name": "StartScreen",
+      "path": "res://scenes/StartScreen.tscn",
+      "type": "UI"
+    },
+    {
+      "name": "Main",
+      "path": "res://scenes/Main.tscn",
+      "type": "Game"
+    },
+    {
+      "name": "Chunk",
+      "path": "res://scenes/Chunk.tscn",
+      "type": "Environment"
+    },
+    {
+      "name": "WallObstacle",
+      "path": "res://scenes/WallObstacle.tscn",
+      "type": "Obstacle"
+    },
+    {
+      "name": "LowObstacle",
+      "path": "res://scenes/LowObstacle.tscn",
+      "type": "Obstacle"
+    },
+    {
+      "name": "CoinCollectible",
+      "path": "res://scenes/CoinCollectible.tscn",
+      "type": "Collectible"
+    },
+    {
+      "name": "GemCollectible",
+      "path": "res://scenes/GemCollectible.tscn",
+      "type": "Collectible"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "Global",
+      "path": "res://scripts/Global.gd",
+      "type": "Singleton"
+    },
+    {
+      "name": "Player",
+      "path": "res://scripts/Player.gd",
+      "type": "Controller"
+    },
+    {
+      "name": "Obstacle",
+      "path": "res://scripts/Obstacle.gd",
+      "type": "Entity"
+    },
+    {
+      "name": "Collectible",
+      "path": "res://scripts/Collectible.gd",
+      "type": "Entity"
+    },
+    {
+      "name": "ChunkManager",
+      "path": "res://scripts/ChunkManager.gd",
+      "type": "System"
+    },
+    {
+      "name": "Main",
+      "path": "res://scripts/Main.gd",
+      "type": "Controller"
+    },
+    {
+      "name": "GameUI",
+      "path": "res://scripts/GameUI.gd",
+      "type": "UI"
+    },
+    {
+      "name": "StartScreen",
+      "path": "res://scripts/StartScreen.gd",
+      "type": "UI"
+    }
+  ],
+  "controls": {
+    "keyboard": {
+      "left": "ui_left",
+      "right": "ui_right",
+      "jump": "ui_up",
+      "slide": "ui_down",
+      "pause": "ui_cancel"
+    },
+    "touch": {
+      "swipe_left": "lane_left",
+      "swipe_right": "lane_right",
+      "swipe_up": "jump",
+      "swipe_down": "slide"
+    }
+  },
+  "ui": {
+    "theme": "temple",
+    "colors": {
+      "primary": "#ff8800",
+      "secondary": "#4a9eff",
+      "background": "#1a1a1a",
+      "text": "#ffffff",
+      "coin": "#ffcc00",
+      "gem": "#cc33ff"
+    }
+  },
+  "audio": {
+    "music": {
+      "menu": "res://assets/music/menu_music.ogg",
+      "game": "res://assets/music/temple_theme.ogg",
+      "intense": "res://assets/music/intense_chase.ogg"
+    },
+    "sfx": {
+      "jump": "res://assets/sounds/jump.wav",
+      "slide": "res://assets/sounds/slide.wav",
+      "coin": "res://assets/sounds/coin_collect.wav",
+      "gem": "res://assets/sounds/gem_collect.wav",
+      "hit": "res://assets/sounds/hit.wav",
+      "powerup": "res://assets/sounds/powerup.wav",
+      "footstep": "res://assets/sounds/footstep.wav",
+      "guardian": "res://assets/sounds/guardian_roar.wav"
+    }
+  },
+  "progression": {
+    "high_score_tracking": true,
+    "total_coins_tracking": true,
+    "distance_tracking": true,
+    "unlockables": {
+      "characters": [],
+      "skins": [],
+      "powerup_upgrades": []
+    }
+  }
+}

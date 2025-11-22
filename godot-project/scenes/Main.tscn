@@ -1,0 +1,148 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8n2x7m4k5pqr"]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/Player.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ChunkManager.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/GameUI.gd" id="4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(30, 50)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(30, 25)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.15, 0.1, 0.05, 1)
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(400, 300)
+script = ExtResource("2")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+modulate = Color(0.2, 0.6, 1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="SlideCollision" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, 12)
+shape = SubResource("RectangleShape2D_2")
+disabled = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Player"]
+
+[node name="ChunkManager" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(400, 300)
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("4")
+
+[node name="TopPanel" type="Panel" parent="UI"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/TopPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = -10.0
+
+[node name="ScoreLabel" type="Label" parent="UI/TopPanel/HBoxContainer"]
+layout_mode = 2
+text = "Score: 0"
+vertical_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="UI/TopPanel/HBoxContainer"]
+layout_mode = 2
+
+[node name="CoinsLabel" type="Label" parent="UI/TopPanel/HBoxContainer"]
+layout_mode = 2
+text = "Coins: 0"
+vertical_alignment = 1
+
+[node name="VSeparator2" type="VSeparator" parent="UI/TopPanel/HBoxContainer"]
+layout_mode = 2
+
+[node name="DistanceLabel" type="Label" parent="UI/TopPanel/HBoxContainer"]
+layout_mode = 2
+text = "Distance: 0m"
+vertical_alignment = 1
+
+[node name="GameOverPanel" type="Panel" parent="UI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+modulate = Color(1, 1, 1, 0)
+visible = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/GameOverPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+
+[node name="GameOverLabel" type="Label" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="FinalScoreLabel" type="Label" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "Final Score: 0"
+horizontal_alignment = 1
+
+[node name="FinalCoinsLabel" type="Label" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "Coins Collected: 0"
+horizontal_alignment = 1
+
+[node name="FinalDistanceLabel" type="Label" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "Distance: 0m"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="RestartButton" type="Button" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "Restart"
+
+[node name="MainMenuButton" type="Button" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "Main Menu"
+
+[node name="CloseButton" type="Button" parent="UI/GameOverPanel/VBoxContainer"]
+layout_mode = 2
+text = "Close"
