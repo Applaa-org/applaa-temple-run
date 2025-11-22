@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Temple Run - Endless Runner</title>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0f05 0%, #2d1810 50%, #1a0f05 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        #gameContainer {
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        #gameCanvas {
+            border: 3px solid #ff8800;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #2d5016 0%, #1a3008 100%);
+            box-shadow: 0 8px 32px rgba(255, 136, 0, 0.4);
+            display: block;
+            margin: 20px auto;
+        }
+        h1 {
+            color: #ff8800;
+            margin-bottom: 15px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 136, 0, 0.3); }
+            to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 136, 0, 0.6); }
+        }
+        .info {
+            color: #cccccc;
+            font-size: 16px;
+            margin-bottom: 20px;
+            max-width: 600px;
+            line-height: 1.4;
+        }
+        .controls {
+            margin-top: 15px;
+            color: #ffcc00;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .game-stats {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #ff8800;
+            z-index: 10;
+        }
+        .stat {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .stat-value {
+            color: #4ade80;
+            margin-left: 5px;
+        }
+        .game-over-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            border: 3px solid #ff8800;
+            text-align: center;
+            display: none;
+            z-index: 20;
+        }
+        .game-over-screen h2 {
+            color: #ff4444;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        .game-over-screen p {
+            color: #ffffff;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .game-over-screen button {
+            background: #ff8800;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .game-over-screen button:hover {
+            background: #ffaa00;
+            transform: scale(1.05);
+        }
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 12px;
+            border: 3px solid #ff8800;
+            text-align: center;
+            z-index: 20;
+        }
+        .start-screen h2 {
+            color: #ff8800;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .start-screen p {
+            color: #ffffff;
+            font-size: 16px;
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+        .start-screen button {
+            background: #ff8800;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .start-screen button:hover {
+            background: #ffaa00;
+            transform: scale(1.05);
+        }
+        .powerup-indicator {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 136, 0, 0.8);
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            display: none;
+            z-index: 15;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🏃 Temple Run</h1>
+        <div class="info">Endless runner where you play as an explorer escaping an ancient temple guardian. Switch lanes, jump, and slide while collecting coins and avoiding obstacles!</div>
+        
+        <div class="game-stats">
+            <div class="stat">Score:<span class="stat-value" id="score">0</span></div>
+            <div class="stat">Coins:<span class="stat-value" id="coins">0</span></div>
+            <div class="stat">Distance:<span class="stat-value" id="distance">0m</span></div>
+        </div>
+        
+        <div class="powerup-indicator" id="powerupIndicator"></div>
+        
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div class="start-screen" id="startScreen">
+            <h2>🏃 Temple Run</h2>
+            <p><strong>How to Play:</strong></p>
+            <p>⬅️➡️ Arrow Keys - Switch Lanes</p>
+            <p>⬆️ Up Arrow - Jump over obstacles</p>
+            <p>⬇️ Down Arrow - Slide under walls</p>
+            <p>🪙 Collect coins and gems for points</p>
+            <p>⚡ Grab power-ups for special abilities</p>
+            <p>🏃 Run as far as you can!</p>
+            <button onclick="startGame()">Start Game</button>
+            <button onclick="closeGame()">Close</button>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen">
+            <h2>GAME OVER</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <p>Coins Collected: <span id="finalCoins">0</span></p>
+            <p>Distance: <span id="finalDistance">0m</span></p>
+            <button onclick="restartGame()">Restart</button>
+            <button onclick="mainMenu()">Main Menu</button>
+            <button onclick="closeGame()">Close</button>
+        </div>
+        
+        <div class="controls">
+            Use ARROW KEYS to move | UP to jump | DOWN to slide
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const coinsElement = document.getElementById('coins');
+        const distanceElement = document.getElementById('distance');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const powerupIndicator = document.getElementById('powerupIndicator');
+        
+        // Game state
+        let gameState = 'menu'; // menu, playing, gameover
+        let score = 0;
+        let coins = 0;
+        let distance = 0;
+        let highScore = 0;
+        let gameSpeed = 5;
+        let frameCount = 0;
+        
+        const canvasWidth = 800;
+        const canvasHeight = 600;
+        const lanes = [200, 400, 600];
+        
+        // Player object
+        let player = {
+            x: lanes[1],
+            y: 400,
+            width: 40,
+            height: 60,
+            targetX: lanes[1],
+            velocityY: 0,
+            isJumping: false,
+            isSliding: false,
+            hasShield: false,
+            speedMultiplier: 1.0,
+            color: '#4a9eff',
+            slideHeight: 30
+        };
+        
+        // Game entities
+        let obstacles = [];
+        let collectibles = [];
+        let particles = [];
+        let backgroundElements = [];
+        
+        // Input handling
+        let keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            handleInput(e.key);
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        function handleInput(key) {
+            if (gameState !== 'playing') return;
+            
+            switch(key) {
+                case 'ArrowLeft':
+                    if (player.targetX > lanes[0]) {
+                        const currentIndex = lanes.indexOf(player.targetX);
+                        player.targetX = lanes[currentIndex - 1];
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (player.targetX < lanes[lanes.length - 1]) {
+                        const currentIndex = lanes.indexOf(player.targetX);
+                        player.targetX = lanes[currentIndex + 1];
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (!player.isJumping && !player.isSliding) {
+                        player.isJumping = true;
+                        player.velocityY = -15;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (!player.isJumping && !player.isSliding) {
+                        player.isSliding = true;
+                        setTimeout(() => {
+                            player.isSliding = false;
+                        }, 500);
+                    }
+                    break;
+            }
+        }
+        
+        function startGame() {
+            gameState = 'playing';
+            resetGame();
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            gameLoop();
+        }
+        
+        function resetGame() {
+            score = 0;
+            coins = 0;
+            distance = 0;
+            gameSpeed = 5;
+            frameCount = 0;
+            player.x = lanes[1];
+            player.targetX = lanes[1];
+            player.y = 400;
+            player.velocityY = 0;
+            player.isJumping = false;
+            player.isSliding = false;
+            player.hasShield = false;
+            player.speedMultiplier = 1.0;
+            obstacles = [];
+            collectibles = [];
+            particles = [];
+            backgroundElements = [];
+            updateUI();
+        }
+        
+        function gameOver() {
+            gameState = 'gameover';
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalCoins').textContent = coins;
+            document.getElementById('finalDistance').textContent = distance + 'm';
+            gameOverScreen.style.display = 'block';
+            if (score > highScore) {
+                highScore = score;
+            }
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function mainMenu() {
+            gameState = 'menu';
+            startScreen.style.display = 'block';
+            gameOverScreen.style.display = 'none';
+        }
+        
+        function closeGame() {
+            window.close();
+        }
+        
+        function updateUI() {
+            scoreElement.textContent = score;
+            coinsElement.textContent = coins;
+            distanceElement.textContent = distance + 'm';
+        }
+        
+        function spawnObstacle() {
+            const lane = lanes[Math.floor(Math.random() * lanes.length)];
+            const type = Math.random() > 0.5 ? 'wall' : 'low';
+            obstacles.push({
+                x: lane,
+                y: -50,
+                width: 60,
+                height: type === 'wall' ? 80 : 30,
+                type: type,
+                color: type === 'wall' ? '#8B4513' : '#654321'
+            });
+        }
+        
+        function spawnCollectible() {
+            const lane = lanes[Math.floor(Math.random() * lanes.length)];
+            const type = Math.random() > 0.8 ? 'gem' : 'coin';
+            collectibles.push({
+                x: lane,
+                y: -30,
+                width: type === 'gem' ? 40 : 30,
+                height: type === 'gem' ? 40 : 30,
+                type: type,
+                value: type === 'gem' ? 50 : 10,
+                color: type === 'gem' ? '#cc33ff' : '#ffcc00',
+                rotation: 0
+            });
+        }
+        
+        function spawnPowerup() {
+            const lane = lanes[Math.floor(Math.random() * lanes.length)];
+            const types = ['shield', 'speed', 'magnet'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            collectibles.push({
+                x: lane,
+                y: -30,
+                width: 35,
+                height: 35,
+                type: type,
+                isPowerup: true,
+                color: type === 'shield' ? '#00ff00' : type === 'speed' ? '#ff0000' : '#00ffff',
+                rotation: 0
+            });
+        }
+        
+        function createParticle(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 30,
+                    color: color,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+        
+        function update() {
+            if (gameState !== 'playing') return;
+            
+            frameCount++;
+            
+            // Update distance and score
+            if (frameCount % 10 === 0) {
+                distance++;
+                score += 1;
+                updateUI();
+            }
+            
+            // Increase difficulty
+            if (frameCount % 600 === 0) {
+                gameSpeed = Math.min(gameSpeed * 1.1, 15);
+            }
+            
+            // Update player position
+            const dx = player.targetX - player.x;
+            player.x += dx * 0.15;
+            
+            // Handle jumping
+            if (player.isJumping) {
+                player.velocityY += 0.8;
+                player.y += player.velocityY;
+                if (player.y >= 400) {
+                    player.y = 400;
+                    player.isJumping = false;
+                    player.velocityY = 0;
+                }
+            }
+            
+            // Spawn entities
+            if (frameCount % Math.max(60 - gameSpeed * 2, 30) === 0) {
+                spawnObstacle();
+            }
+            if (frameCount % 40 === 0) {
+                spawnCollectible();
+            }
+            if (frameCount % 300 === 0) {
+                spawnPowerup();
+            }
+            
+            // Update obstacles
+            obstacles = obstacles.filter(obstacle => {
+                obstacle.y += gameSpeed;
+                
+                // Check collision with player
+                const playerHeight = player.isSliding ? player.slideHeight : player.height;
+                const playerRect = {
+                    x: player.x - player.width/2,
+                    y: player.y - playerHeight,
+                    width: player.width,
+                    height: playerHeight
+                };
+                const obstacleRect = {
+                    x: obstacle.x - obstacle.width/2,
+                    y: obstacle.y,
+                    width: obstacle.width,
+                    height: obstacle.height
+                };
+                
+                if (checkCollision(playerRect, obstacleRect)) {
+                    if (obstacle.type === 'wall' && player.isSliding) {
+                        // Player slides under wall
+                        return false;
+                    } else if (obstacle.type === 'low' && player.isJumping) {
+                        // Player jumps over low obstacle
+                        return false;
+                    } else if (player.hasShield) {
+                        player.hasShield = false;
+                        createParticle(obstacle.x, obstacle.y, '#00ff00');
+                        return false;
+                    } else {
+                        gameOver();
+                        return false;
+                    }
+                }
+                
+                return obstacle.y < canvasHeight + 50;
+            });
+            
+            // Update collectibles
+            collectibles = collectibles.filter(collectible => {
+                collectible.y += gameSpeed;
+                collectible.rotation += 0.05;
+                
+                // Check collision with player
+                const playerRect = {
+                    x: player.x - player.width/2,
+                    y: player.y - player.height,
+                    width: player.width,
+                    height: player.height
+                };
+                const collectibleRect = {
+                    x: collectible.x - collectible.width/2,
+                    y: collectible.y,
+                    width: collectible.width,
+                    height: collectible.height
+                };
+                
+                if (checkCollision(playerRect, collectibleRect)) {
+                    if (collectible.isPowerup) {
+                        activatePowerup(collectible.type);
+                    } else {
+                        coins += collectible.value;
+                        score += collectible.value;
+                        updateUI();
+                    }
+                    createParticle(collectible.x, collectible.y, collectible.color);
+                    return false;
+                }
+                
+                return collectible.y < canvasHeight + 50;
+            });
+            
+            // Update particles
+            particles = particles.filter(particle => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.3;
+                particle.life--;
+                return particle.life > 0;
+            });
+        }
+        
+        function activatePowerup(type) {
+            switch(type) {
+                case 'shield':
+                    player.hasShield = true;
+                    showPowerupIndicator('Shield Active!');
+                    setTimeout(() => {
+                        player.hasShield = false;
+                    }, 5000);
+                    break;
+                case 'speed':
+                    player.speedMultiplier = 1.5;
+                    showPowerupIndicator('Speed Boost!');
+                    setTimeout(() => {
+                        player.speedMultiplier = 1.0;
+                    }, 5000);
+                    break;
+                case 'magnet':
+                    showPowerupIndicator('Magnet Active!');
+                    // Attract nearby coins
+                    setTimeout(() => {
+                        // Magnet effect ends
+                    }, 10000);
+                    break;
+            }
+        }
+        
+        function showPowerupIndicator(text) {
+            powerupIndicator.textContent = text;
+            powerupIndicator.style.display = 'block';
+            setTimeout(() => {
+                powerupIndicator.style.display = 'none';
+            }, 2000);
+        }
+        
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = '#2d5016';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // Draw background elements
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            for (let i = 0; i < 5; i++) {
+                const y = (frameCount * gameSpeed + i * 150) % canvasHeight;
+                ctx.fillRect(0, y, canvasWidth, 2);
+            }
+            
+            // Draw lane markers
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([20, 10]);
+            lanes.forEach(lane => {
+                ctx.beginPath();
+                ctx.moveTo(lane, 0);
+                ctx.lineTo(lane, canvasHeight);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+            
+            // Draw obstacles
+            obstacles.forEach(obstacle => {
+                ctx.fillStyle = obstacle.color;
+                ctx.fillRect(obstacle.x - obstacle.width/2, obstacle.y, obstacle.width, obstacle.height);
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(obstacle.x - obstacle.width/2, obstacle.y, obstacle.width, obstacle.height);
+            });
+            
+            // Draw collectibles
+            collectibles.forEach(collectible => {
+                ctx.save();
+                ctx.translate(collectible.x, collectible.y);
+                ctx.rotate(collectible.rotation);
+                ctx.fillStyle = collectible.color;
+                if (collectible.type === 'gem') {
+                    // Draw diamond shape for gems
+                    ctx.beginPath();
+                    ctx.moveTo(0, -collectible.height/2);
+                    ctx.lineTo(collectible.width/2, 0);
+                    ctx.lineTo(0, collectible.height/2);
+                    ctx.lineTo(-collectible.width/2, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (collectible.isPowerup) {
+                    // Draw star shape for powerups
+                    ctx.beginPath();
+                    for (let i = 0; i < 5; i++) {
+                        const angle = (i * 72 - 90) * Math.PI / 180;
+                        const x = Math.cos(angle) * collectible.width/2;
+                        const y = Math.sin(angle) * collectible.height/2;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    // Draw circle for coins
+                    ctx.beginPath();
+                    ctx.arc(0, 0, collectible.width/2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.life / 30;
+                ctx.fillRect(particle.x - particle.size/2, particle.y - particle.size/2, particle.size, particle.size);
+            });
+            ctx.globalAlpha = 1;
+            
+            // Draw player
+            const playerHeight = player.isSliding ? player.slideHeight : player.height;
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x - player.width/2, player.y - playerHeight, player.width, playerHeight);
+            
+            // Draw shield effect
+            if (player.hasShield) {
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y - playerHeight/2, player.width, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Draw speed effect
+            if (player.speedMultiplier > 1) {
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 3; i++) {
+                    ctx.globalAlpha = 0.3 - i * 0.1;
+                    ctx.fillRect(player.x - player.width/2 - i * 5, player.y - playerHeight + i * 5, player.width, playerHeight);
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        function gameLoop() {
+            update();
+            render();
+            
+            if (gameState === 'playing') {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Initialize game
+        startScreen.style.display = 'block';
+        
+        console.log('🎮 Temple Run game loaded successfully!');
+    </script>
+</body>
+</html>
